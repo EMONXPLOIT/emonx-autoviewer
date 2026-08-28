@@ -4,23 +4,44 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 console.log("==================================================");
-console.log("   Automated Multi-View & Watch-Time Generator   ");
+console.log("    EMONXPLOIT MULTI-PLATFORM AUTO VIEWER         ");
 console.log("==================================================");
 
-const VIDEO_URL = readline.question('\n[?] Video Link paste korun: ');
+// ১. প্ল্যাটফর্ম সিলেক্ট করার মেনু
+console.log("\nKon Platform er Video-te View Barate Chan?");
+console.log("[1] YouTube");
+console.log("[2] TikTok");
+console.log("[3] Facebook");
+console.log("[4] Custom / Other Platform");
 
-if (!VIDEO_URL || !VIDEO_URL.startsWith('http')) {
-    console.log("[-] Error: Sothik Video Link din!");
+const choice = readline.question('\n[?] Apnar Choice Type Korun (1/2/3/4): ');
+
+let platformName = "";
+if (choice === '1') platformName = "YouTube";
+else if (choice === '2') platformName = "TikTok";
+else if (choice === '3') platformName = "Facebook";
+else if (choice === '4') platformName = "Custom Platform";
+else {
+    console.log("[-] Invalid choice! Program bondho hocche.");
     process.exit(1);
 }
 
-const CONCURRENT_VIEWS = 3;  
-const WATCH_TIME_MS = 20000;
+// ২. নির্বাচিত প্ল্যাটফর্মের ভিডিও লিংক নেওয়া
+const VIDEO_URL = readline.question(`\n[?] Paste ${platformName} Video Link: `);
+
+if (!VIDEO_URL || !VIDEO_URL.startsWith('http')) {
+    console.log("[-] Error: Sothik Video Link Din!");
+    process.exit(1);
+}
+
+// ৩. অটোমেশন কনফিগারেশন
+const CONCURRENT_VIEWS = 3;  // একসাথে ৩টি ব্রাউজার চলবে (RAM সেফ রাখার জন্য)
+const WATCH_TIME_MS = 25000; // ২৫ সেকেন্ড প্লে হবে
 
 async function runSingleView(botId) {
     const browser = await puppeteer.launch({
         executablePath: '/data/data/com.termux/files/usr/bin/chromium-browser',
-        headless: true,
+        headless: true, // ব্যাকগ্রাউন্ডে চলবে
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -31,13 +52,15 @@ async function runSingleView(botId) {
 
     const page = await browser.newPage();
     try {
+        // রিয়েল মোবাইল ইউজার-এজেন্ট সিমুলেট করা
         await page.setUserAgent('Mozilla/5.0 (Linux; Android 13; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36');
         
-        await page.goto(VIDEO_URL, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        console.log(`[+] [Bot #${botId}] Link Loaded. Play time count hocche...`);
+        await page.goto(VIDEO_URL, { waitUntil: 'domcontentloaded', timeout: 35000 });
+        console.log(`[+] [Bot #${botId}] [${platformName}] Video Loaded. Play Time Start...`);
         
+        // ভিডিও নির্দিষ্ট সময় পর্যন্ত প্লে রাখা
         await new Promise(resolve => setTimeout(resolve, WATCH_TIME_MS));
-        console.log(`[✓] [Bot #${botId}] Watch-time added successfully!`);
+        console.log(`[✓] [Bot #${botId}] [${platformName}] Watch-time added successfully!`);
     } catch (err) {
         console.log(`[-] [Bot #${botId}] Error: ${err.message}`);
     } finally {
@@ -47,9 +70,11 @@ async function runSingleView(botId) {
 
 async function startLoop() {
     let cycle = 1;
-    console.log(`\n[+] Video URL Set: ${VIDEO_URL}`);
+    console.log(`\n==================================================`);
+    console.log(`[+] Selected Platform: ${platformName}`);
+    console.log(`[+] Target URL: ${VIDEO_URL}`);
     console.log(`[+] Target: ${CONCURRENT_VIEWS} Parallel Views per Cycle.`);
-    console.log("--------------------------------------------------");
+    console.log("==================================================");
 
     while (true) {
         console.log(`\n---> [Cycle #${cycle}] Multi-View loop active...`);
